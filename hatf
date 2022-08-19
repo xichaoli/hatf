@@ -1,0 +1,77 @@
+#!/bin/bash
+###
+# @Author: xichaoli xichaoli@sina.cn
+# @Date: 2022-08-19 14:06:00
+# @LastEditors: xichaoli xichaoli@sina.cn
+# @LastEditTime: 2022-08-19 18:01:42
+# @FilePath: /hatf/hatf
+# @Description: 程序的入口
+###
+
+# 一旦有语句返回非真值，则退出脚本
+set -e
+
+# 执行测试需要用户有root权限
+if [ $(id -u) -ne 0 ]; then
+    whiptail --title "Error message" --msgbox \
+        "You must have root permision!" 10 60
+    exit 1
+fi
+
+# 获取当前目录
+PROJECT_TOP=${PWD}
+
+# 选择要测试的设备型号
+DUT_MODEL=$(
+    whiptail --title "DUT model" --radiolist \
+        "\nmodel of device under test\n\n" 10 60 2 \
+        "S9080" "3231 board" ON \
+        "S6040" "831 board" OFF \
+        3>&1 1>&2 2>&3
+)
+
+# 选择将要测试的功能单元
+UNIT_SELECTED=$(
+    whiptail --title "unit selection" --radiolist \
+        "\nUnit module to be tested\n" 10 60 3 \
+        "function" "Function of interfaces" ON \
+        "stability" "Stability of DUT" OFF \
+        "performance" "Performance of DUT. Want to do!" OFF \
+        3>&1 1>&2 2>&3
+)
+
+# 加载日志模块
+source libs/log
+
+# 加载所选择的测试模块
+for testcase in tests/${UNIT_SELECTED}/*; do
+    source ${testcase}
+done
+
+# 接口功能测试
+do_function_test() {
+    log_info "Start interface function test ..."
+    log_info "End interface function test ..."
+}
+
+# 稳定性测试
+do_stability_test() {
+    log_info "Start stability test ..."
+    test_memory
+    test_stress
+    log_info "End stability test ..."
+}
+
+# 性能测试
+do_performance_test() {
+    log_warn "Want to do!\n"
+}
+
+# 开始测似
+if [ "function" == "${UNIT_SELECTED}" ]; then
+    do_function_test
+elif [ "stability" == "${UNIT_SELECTED}" ]; then
+    do_stability_test
+else
+    do_performance_test
+fi
