@@ -24,7 +24,7 @@ test_memtester() {
             "The recommended setting is 3\n" 10 50 3 3>&1 1>&2 2>&3
     )
 
-    memtester ${MEMORY_SIZE}K ${ROUND_NUMBER}
+    memtester "${MEMORY_SIZE}"K "${ROUND_NUMBER}" 2>&1 | tee -a "${LOG_FILE}"
 
     if (whiptail --title "test result" --yesno "所有测试项结果都是 yes ?" 10 50); then
         log_info "Memtester 测试通过 ..."

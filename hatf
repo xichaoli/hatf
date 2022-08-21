@@ -12,16 +12,17 @@
 set -e
 
 # 执行测试需要用户有root权限
-if [ $(id -u) -ne 0 ]; then
+if [ "$(id -u)" -ne 0 ]; then
     whiptail --title "Error message" --msgbox \
         "You must have root permission!" 10 60
     exit 1
 fi
 
-# 获取当前目录
+# 获取当前目录，并设置为环境变量
 PROJECT_TOP=${PWD}
+export PROJECT_TOP
 
-# 选择要测试的设备型号
+# 选择要测试的设备型号，并设置为环境变量
 DUT_MODEL=$(
     whiptail --title "DUT model" --radiolist \
         "\nModel of device under test\n\n" 10 60 2 \
@@ -29,6 +30,7 @@ DUT_MODEL=$(
         "S6040" "831 board" OFF \
         3>&1 1>&2 2>&3
 )
+export DUT_MODEL
 
 # 选择将要测试的功能单元
 UNIT_SELECTED=$(
@@ -41,23 +43,22 @@ UNIT_SELECTED=$(
 )
 
 # 加载日志模块
-source libs/log
-
-# 加载所选择的测试模块
-for testcase in tests/${UNIT_SELECTED}/*; do
-    source ${testcase}
-done
+source libs/log.sh
 
 # 接口功能测试
 do_function_test() {
     log_info "Start interface function test ..."
+    # 加载所选择的测试模块
     log_info "End interface function test ..."
 }
 
 # 稳定性测试
 do_stability_test() {
     log_info "Start stability test ..."
-    test_memory
+    # 加载所选择的测试模块
+    source ./tests/stability/test_memory.sh
+    test_memtester
+    source ./tests/stability/test_stress.sh
     test_stress
     log_info "End stability test ..."
 }

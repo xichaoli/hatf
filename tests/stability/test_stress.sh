@@ -36,9 +36,10 @@ test_stress() {
             "The recommended setting is 8h\n" 10 50 8h 3>&1 1>&2 2>&3
     )
 
-    stress -v --cpu ${CPU_PROCESSES} --io ${IO_PROCESSES} --vm ${MEMORY_PROCESSES} --hdd ${DISK_PROCESSES} --timeout ${TEST_TIME}
+    stress --cpu "${CPU_PROCESSES}" --io "${IO_PROCESSES}" --vm "${MEMORY_PROCESSES}" --hdd "${DISK_PROCESSES}" \
+      --timeout "${TEST_TIME}" 2>&1 | tee -a "${LOG_FILE}"
 
-    if (whiptail --title "test result" --yesno "测试完成后系统是否死机？" 10 50); then
+    if (whiptail --title "test result" --yesno "测试完成后系统状态是否正常（可用dmesg命令查看）？" 10 50); then
         log_info "stress 测试通过 ..."
     else
         log_err "stress 测试不通过 ..."
