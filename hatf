@@ -14,7 +14,7 @@ set -e
 # 执行测试需要用户有root权限
 if [ $(id -u) -ne 0 ]; then
     whiptail --title "Error message" --msgbox \
-        "You must have root permision!" 10 60
+        "You must have root permission!" 10 60
     exit 1
 fi
 
@@ -24,7 +24,7 @@ PROJECT_TOP=${PWD}
 # 选择要测试的设备型号
 DUT_MODEL=$(
     whiptail --title "DUT model" --radiolist \
-        "\nmodel of device under test\n\n" 10 60 2 \
+        "\nModel of device under test\n\n" 10 60 2 \
         "S9080" "3231 board" ON \
         "S6040" "831 board" OFF \
         3>&1 1>&2 2>&3

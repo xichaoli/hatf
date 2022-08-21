@@ -1,1 +1,1 @@
-# HATF (Hardware auto test framwork)
+# HATF (Hardware auto test framework)
