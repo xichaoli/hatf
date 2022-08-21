@@ -1,1 +1,5 @@
-logs/*
+logs/*.txt
+.idea
+.vscode
+
+
