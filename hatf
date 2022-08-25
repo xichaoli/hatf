@@ -1,15 +1,17 @@
 #!/bin/bash
+#shellcheck disable=SC1090
 ###
 # @Author: xichaoli xichaoli@sina.cn
 # @Date: 2022-08-19 14:06:00
 # @LastEditors: xichaoli xichaoli@sina.cn
-# @LastEditTime: 2022-08-19 18:01:42
+# @LastEditTime: 2022-08-24 14:32:18
 # @FilePath: /hatf/hatf
 # @Description: 程序的入口
 ###
 
 # 一旦有语句返回非真值，则退出脚本
-set -e
+# TODO: 测试程序中的错误处理还未做！
+#set -e
 
 # 执行测试需要用户有root权限
 if [ "$(id -u)" -ne 0 ]; then
@@ -48,11 +50,28 @@ source libs/log.sh
 # 接口功能测试
 do_function_test() {
     log_info "Start interface function test ..."
+
     # 加载所选择的测试模块
+    for func in tests/function/*; do
+        # 下面的语句在静态检测时有一个警告，为了省几行代码，可以忽略
+        source "${func}"
+    done
+
+    # 功能测试项
+    test_serial
+    test_cpu
+    test_memory
+    test_rtc
+    test_beep
+    test_MGT
+    test_usb
+    test_disk
+    test_led
+    test_pcie
     log_info "End interface function test ..."
 }
 
-# 稳定性测试
+#稳定性测试
 do_stability_test() {
     log_info "Start stability test ..."
     # 加载所选择的测试模块
@@ -64,14 +83,18 @@ do_stability_test() {
 }
 
 # 性能测试
+# TODO: 能自动化的测试项不多，计划测试项有：
+# 1. stream 内存带宽性能
+# 2. fio 磁盘读写性能测试
+# 3. unixbench  综合性能测试
 do_performance_test() {
     log_warn "Want to do!\n"
 }
 
 # 开始测似
-if [ "function" == "${UNIT_SELECTED}" ]; then
+if [ "function" = "${UNIT_SELECTED}" ]; then
     do_function_test
-elif [ "stability" == "${UNIT_SELECTED}" ]; then
+elif [ "stability" = "${UNIT_SELECTED}" ]; then
     do_stability_test
 else
     do_performance_test
