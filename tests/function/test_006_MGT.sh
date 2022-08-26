@@ -26,9 +26,9 @@ test_link() {
         10 50 192.168. 3>&1 1>&2 2>&3)
 
     if ping -c 3 "${DEST_IP}"; then
-        log_err "管理网口 $1 与 目标地址网络不通！"
-    else
         log_info "管理网口 $1 与 目标地址网络联通正常."
+    else
+        log_err "管理网口 $1 与 目标地址网络不通！"
     fi
 
     ip addr del "${LOCAL_IP}" dev "$1"
