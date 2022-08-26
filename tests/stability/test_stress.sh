@@ -11,26 +11,31 @@
 test_stress() {
     log_info "Start stress test ..."
 
+    local CPU_PROCESSES
     CPU_PROCESSES=$(
         whiptail --title "Number of processes used when testing CPU" --inputbox \
             "The recommended setting is the number of cpus\n" 10 50 8 3>&1 1>&2 2>&3
     )
 
+    local MEMORY_PROCESSES
     MEMORY_PROCESSES=$(
         whiptail --title "Number of processes used when testing memory" --inputbox \
             "Use memory size require multiply 256MB\n" 10 50 8 3>&1 1>&2 2>&3
     )
 
+    local DISK_PROCESSES
     DISK_PROCESSES=$(
         whiptail --title "Number of processes used when testing disk" --inputbox \
             "Use disk size require multiply 1G\n" 10 50 10 3>&1 1>&2 2>&3
     )
 
+    local IO_PROCESSES
     IO_PROCESSES=$(
         whiptail --title "Number of processes used when testing IO" --inputbox \
             "The recommended setting is the number of cpus\n" 10 50 8 3>&1 1>&2 2>&3
     )
 
+    local TEST_TIME
     TEST_TIME=$(
         whiptail --title "Test duration" --inputbox \
             "The recommended setting is 8h\n" 10 50 8h 3>&1 1>&2 2>&3

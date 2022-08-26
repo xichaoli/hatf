@@ -10,15 +10,19 @@
 
 test_memtester() {
     log_info "Start memtester ..."
+    local MEMORY_AVAILABLE
     MEMORY_AVAILABLE=$(grep MemTotal: /proc/meminfo | awk '{print $2}')
 
+    local MEMORY_RATE
     MEMORY_RATE=$(
         whiptail --title "Memory rate to be tested" --inputbox \
             "The recommended setting is above 0.9\n" 10 50 0.9 3>&1 1>&2 2>&3
     )
 
+    local MEMORY_SIZE
     MEMORY_SIZE=$(echo "${MEMORY_AVAILABLE}*${MEMORY_RATE}/1" | bc)
 
+    local ROUND_NUMBER
     ROUND_NUMBER=$(
         whiptail --title "Round number to be tested" --inputbox \
             "The recommended setting is 3\n" 10 50 3 3>&1 1>&2 2>&3

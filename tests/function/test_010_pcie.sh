@@ -11,6 +11,7 @@
 # @description: 由于PCIe卡不能热插拔，所以需要在系统启动前连接好所有被测卡.
 # 实际测试时可通过 lspci 命令获取设备号，修改脚本后再做测试.
 ###
+# shellcheck disable=SC3030
 test_pcie() {
     log_info "Start to test PCIe slots ..."
 

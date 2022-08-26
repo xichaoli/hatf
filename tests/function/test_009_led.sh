@@ -7,6 +7,7 @@
 # @Description: 测试管理板的 sys 状态灯
 ###
 
+# shellcheck disable=SC3030
 test_led() {
     log_info "Start to test the LED of sys ..."
     declare -A led_status
