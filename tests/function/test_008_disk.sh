@@ -1,3 +1,6 @@
+#!/bin/bash
+#shellcheck disable=SC2034
+#bashsupport disable=BP2001
 ###
 # @Author: xichaoli xichaoli@sina.cn
 # @Date: 2022-08-23 17:21:35
@@ -13,13 +16,22 @@
 ###
 test_disk() {
     log_info "Start to test SATA interface ..."
-    dut_disks="BIWIN_SSD KINGSTON_SA400M8120G KINGSTON_SA400S37120G GG2ZT256S3C27"
+    local title="disk"
+    local case_id="0082"
+
+    local dut_disks
+    dut_disks="BIWIN_SSD KINGSTON_SA400M8120G KINGSTON_SA400S37120G ST9500620NS"
+
     for disk in ${dut_disks}; do
-        whiptail --msgbox "请确认设备型号为 ${disk} 的测试硬盘已插好" 10 50
+        ((RUN_NUM += 1))
+        whiptail --msgbox "请确认设备型号为 ${disk} 的测试硬盘已插好!" 10 50
 
         if lsblk -S | grep -q "${disk}"; then
+            ((PASS_NUM += 1))
             log_info "已识别到 ${disk} 型号的测试硬盘"
         else
+            ((FAIL_NUM += 1))
+            fail_id[${title}]=${case_id}
             log_err "未识别到 ${disk} 型号的测试硬盘！"
         fi
     done

@@ -12,7 +12,7 @@
 LOG_LEVEL=2
 
 #日志文件
-LOG_FILE=${PROJECT_TOP}/logs/log-$(date "+%Y%m%d%H%M%S").txt
+LOG_FILE=${PROJECT_TOP}/logs/${DUT_MODEL}-${UNIT_SELECTED}-${TIME_STR}.log
 export LOG_FILE
 touch "${LOG_FILE}"
 

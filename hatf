@@ -3,8 +3,8 @@
 ###
 # @Author: xichaoli xichaoli@sina.cn
 # @Date: 2022-08-19 14:06:00
-# @LastEditors: xichaoli xichaoli@sina.cn
-# @LastEditTime: 2022-08-24 14:32:18
+# @LastEditors: xichaoli xichao@sina.cn
+# @LastEditTime: 2022-09-14 14:00:32
 # @FilePath: /hatf/hatf
 # @Description: 程序的入口
 ###
@@ -20,6 +20,14 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
+# 调整控制台（serial）日志级别为 4, 抑制内核信息输出到串口终端
+echo 4 > /proc/sys/kernel/printk
+
+# 获取当前时间
+TIME_START=$(date '+%Y-%m-%d %H:%M:%S')
+TIME_STR=$(date -d "${TIME_START}" "+%Y%m%d%H%M%S")
+export TIME_STR
+
 # 获取当前目录，并设置为环境变量
 PROJECT_TOP=${PWD}
 export PROJECT_TOP
@@ -27,9 +35,10 @@ export PROJECT_TOP
 # 选择要测试的设备型号，并设置为环境变量
 DUT_MODEL=$(
     whiptail --title "DUT model" --radiolist \
-        "\nModel of device under test\n\n" 10 60 2 \
+        "\nModel of device under test\n\n" 10 60 3 \
         "S9080" "3231 board" ON \
-        "S6040" "831 board" OFF \
+        "S6040" "831 4 pcie slot board" OFF \
+        "S6016" "831 single pcie slot board" OFF \
         3>&1 1>&2 2>&3
 )
 export DUT_MODEL
@@ -43,8 +52,16 @@ UNIT_SELECTED=$(
         "performance" "Performance of DUT. Want to do!" OFF \
         3>&1 1>&2 2>&3
 )
+export UNIT_SELECTED
+
+# 定义统计测试用例相关变量
+RUN_NUM=0
+PASS_NUM=0
+FAIL_NUM=0
+declare -A fail_id
 
 # 加载日志模块
+# shellcheck source=/dev/null
 source libs/log.sh
 
 # 接口功能测试
@@ -75,9 +92,11 @@ do_function_test() {
 do_stability_test() {
     log_info "Start stability test ..."
     # 加载所选择的测试模块
-    source ./tests/stability/test_memory.sh
+    # shellcheck source=/dev/null
+    source ./tests/stability/test_101_memory.sh
     test_memtester
-    source ./tests/stability/test_stress.sh
+    # shellcheck source=/dev/null
+    source ./tests/stability/test_102_stress.sh
     test_stress
     log_info "End stability test ..."
 }
@@ -91,7 +110,34 @@ do_performance_test() {
     log_warn "Want to do!\n"
 }
 
+test_start() {
+    clear
+    echo
+    echo -e "\033[42m----------------------------------------\033[m"
+    echo -e "\e[32m测试开始：\e[0m"
+    echo -e "\033[42m----------------------------------------\033[m"
+    echo
+}
+
+# bashsupport disable=BP2001
+test_report() {
+    TIME_END=$(date '+%Y-%m-%d %H:%M:%S')
+    echo
+    echo -e "\033[42m----------------------------------------\033[m"
+    echo -e "#\e[32m 测试结束.\e[0m"
+    echo -e "#\e[32m 测试开始时间 ${TIME_START}.\e[0m #"
+    echo -e "#\e[32m 测试结束时间 ${TIME_END}.\e[0m #"
+    echo -e "#\e[32m 执行测试用例 ${RUN_NUM}.\e[0m #"
+    echo -e "#\e[32m 用例通过数量 ${PASS_NUM}.\e[0m #"
+    echo -e "#\e[31m 用例失败数量 ${FAIL_NUM}.\e[0m #"
+    echo -e "#\e[31m 失败用例 ID ${!fail_id[*]}.\e[0m #"
+    echo -e "\033[42m----------------------------------------\033[m"
+    echo
+}
+
 # 开始测似
+test_start
+
 if [ "function" = "${UNIT_SELECTED}" ]; then
     do_function_test
 elif [ "stability" = "${UNIT_SELECTED}" ]; then
@@ -99,3 +145,5 @@ elif [ "stability" = "${UNIT_SELECTED}" ]; then
 else
     do_performance_test
 fi
+
+test_report

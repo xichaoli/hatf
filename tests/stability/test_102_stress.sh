@@ -2,14 +2,17 @@
 ###
 # @Author: xichaoli xichaoli@sina.cn
 # @Date: 2022-08-19 17:12:32
-# @LastEditors: xichaoli xichaoli@sina.cn
-# @LastEditTime: 2022-08-19 18:00:56
+ # @LastEditors: xichaoli xichao@sina.cn
+ # @LastEditTime: 2022-09-14 10:12:27
 # @FilePath: /hatf/tests/stability/test_memory
 # @Description: 使用 stress 系统稳定性压力测试
 ###
 
 test_stress() {
     log_info "Start stress test ..."
+
+    local title="stress"
+    local case_id="1021"
 
     local CPU_PROCESSES
     CPU_PROCESSES=$(
@@ -42,11 +45,16 @@ test_stress() {
     )
 
     stress --cpu "${CPU_PROCESSES}" --io "${IO_PROCESSES}" --vm "${MEMORY_PROCESSES}" --hdd "${DISK_PROCESSES}" \
-      --timeout "${TEST_TIME}" 2>&1 | tee -a "${LOG_FILE}"
+        --timeout "${TEST_TIME}" 2>&1 | tee -a "${LOG_FILE}"
 
-    if (whiptail --title "test result" --yesno "测试完成后系统状态是否正常（可用dmesg命令查看）？" 10 50); then
+    ((RUN_NUM += 1))
+
+    if (whiptail --title "test result" --yesno "测试完成后系统状态是否正常(可用dmesg命令查看)?" 10 50); then
+        ((PASS_NUM += 1))
         log_info "stress 测试通过 ..."
     else
+        ((FAIL_NUM += 1))
+        fail_id[${title}]=${case_id}
         log_err "stress 测试不通过 ..."
     fi
     log_info "End stress test ..."
